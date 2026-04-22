@@ -1,6 +1,7 @@
 <template>
   <h1>TAREA 7: App dinámica con Vue/Nuxt (API Rick & Morty)</h1>
   <Filters v-model:filters="filters" />
+  <Pagination v-model:page="page" />
   <p v-if="loading">Cargando...</p>
 
   <p v-else-if="characters.length === 0">
@@ -25,13 +26,11 @@
 import { ref, onMounted, watch } from 'vue'
 import CharacterList from './components/CharactersList.vue'
 import Filters from './components/Filters.vue'
+import Pagination from './components/Pagination.vue'
 
 const characters = ref([])
 const loading = ref(false)
-
-onMounted(async () => {
-  characters.value = await fetchCharacters()
-})
+const page = ref(1)
 
 const filters = ref({
   name: '',
@@ -54,6 +53,10 @@ async function fetchCharacters() {
 
   if(filters.value.species) {
     queryParams.push(`species=${filters.value.species}`)
+  }
+
+  if (page.value) {
+    queryParams.push(`page=${page.value}`)
   }
 
   if (queryParams.length > 0) {
@@ -86,11 +89,15 @@ const filterBySpecies = async (species) => {
   filters.value.species = species
 }
 
-watch(filters, async () => {
+watch(filters, () => {
+  page.value = 1
+}, { deep: true })
+
+watch([filters, page], async () => {
   loading.value = true
   characters.value = await fetchCharacters()
   loading.value = false
-}, { deep: true })
+}, { deep: true, immediate: true })
 
 </script>
 
