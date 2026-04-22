@@ -52,16 +52,20 @@ Puedes ver todos los archivos de componentes en [components](./dwec-ut07-vuedyna
 
 ## Gestión de errores
 
-Durante el desarrollo y el testeo de la aplicación se han detectado algunos errores con la api de rickandmorti y se han implementado mecanismos de gestión.
+Durante el desarrollo y el testeo de la aplicación se han detectado algunos errores con la api de rickandmorty y se han implementado mecanismos de gestión.
 
 Por un lado, la aplicación tiene un estado cargando mientras espera a la respuesta de la api.
+
 ![Estado cargando](./docs/imagen-3.png)
 
 Si la respuesta tiene el estado 404, se muestra el mensaje de error apropiado al usuario.
+
 ![Sin resultados](./docs/imagen-4.png)
 
 Si se hacen demasiadas llamadas en poco tiempo, la api responde con el código 429 (too many requests). Para evitar esto se han incluido mecanismos de [debounce](https://medium.com/@kushal.bhargava01/debounce-optimizing-api-call-in-js-dc166b8a55ee)
+
 ![Implementación de debounce](./docs/imagen-2.png)
 
 Además, se muestra un mensaje adecuado al usuario.
+
 ![Error de red](./docs/imagen-5.png)
