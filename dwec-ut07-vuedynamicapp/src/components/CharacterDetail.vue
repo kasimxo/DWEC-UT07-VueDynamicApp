@@ -4,29 +4,79 @@
     <div class="modal">
       <button class="close-btn" @click="close">✖</button>
 
-      <img :src="character.image" />
+      <div class="character-info">
 
-      <h2>{{ character.name }}</h2>
-      <p>Especie: {{ character.species }}</p>
-      <p>Estado: {{ character.status }}</p>
-      <p>Género: {{ character.gender }}</p>
+        <img :src="character.image" />
+        
+        <h2>{{ character.name }}</h2>
+        <p>Especie: {{ character.species }}</p>
+        <p>Estado: {{ character.status }}</p>
+        <p>Género: {{ character.gender }}</p>
+      </div>
+
+      <div class="location">
+        <h3>Localización</h3>
+
+        <p v-if="loadingLocation">Cargando localización...</p>
+
+        <p v-else-if="locationError">
+          {{ locationError }}
+        </p>
+
+        <div v-else-if="location">
+          <p><strong>Nombre:</strong> {{ location.name }}</p>
+          <p><strong>Tipo:</strong> {{ location.type }}</p>
+          <p><strong>Dimensión:</strong> {{ location.dimension }}</p>
+          <p><strong>Residentes:</strong> {{ location.residents.length }}</p>
+        </div>
+      </div>
+
     </div>
+
+    
 
   </div>
 </template>
 
 <script setup>
-import { onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 
 const props = defineProps({
   character: Object
 })
 
+const location = ref(null)
+const loadingLocation = ref(false)
+const locationError = ref(null)
+
+const fetchLocation = async () => {
+  if (!props.character?.location?.url) return
+
+  loadingLocation.value = true
+  locationError.value = null
+
+  try {
+    const res = await fetch(props.character.location.url)
+
+    if (!res.ok) {
+      throw new Error('Error al cargar localización')
+    }
+
+    const data = await res.json()
+    location.value = data
+
+  } catch (e) {
+    console.error(e)
+    locationError.value = 'No se pudo cargar la localización'
+  } finally {
+    loadingLocation.value = false
+  }
+}
+
 const emit = defineEmits(['close'])
 
 const close = () => emit('close')
 
-// cerrar con ESC
 const handleKey = (e) => {
   if (e.key === 'Escape') {
     close()
@@ -34,7 +84,9 @@ const handleKey = (e) => {
 }
 
 onMounted(() => {
+  console.log("CharacterDetail: ", props.character)
   window.addEventListener('keydown', handleKey)
+  fetchLocation()
 })
 
 onUnmounted(() => {
@@ -66,6 +118,7 @@ onUnmounted(() => {
   text-align: center;
   position: relative;
   animation: fadeIn 0.2s ease;
+  display: flex;
 }
 
 @keyframes fadeIn {

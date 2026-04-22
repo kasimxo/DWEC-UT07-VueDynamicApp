@@ -35,7 +35,7 @@ La aplicación es compatible con los principales navegadores, no emplea recargas
 Puedes ver todos los archivos de componentes en [components](./dwec-ut07-vuedynamicapp/src/components/)
 
 - CharacterCard: Tarjeta para cada personaje. Muestra una imagen del personaje, así como el nombre y algunas de sus propiedades.
-- CharacterDetail: Modal del detalle del personaje. Se muestra sobre el resto de la pantalla y se puede cerrar pulsando la x o haciendo clic fuera del modal.
+- CharacterDetail: Modal del detalle del personaje. Se muestra sobre el resto de la pantalla y se puede cerrar pulsando la x, la tecla ESC o haciendo clic fuera del modal.
 - CharacterList: Listado de personajes que coinciden con los criterios de búsqueda. Solo muestra los personajes de la página actual (20 personajes por página).
 - Filters: Componente que agrupa todos los subcomponentes de filtros, como la SearchBar, SpeciesFilter y StatusFilter.
 - Pagination: Componente de paginación. Muestra la página actual y el total de páginas, además de tener un botón para avanzar y retroceder.
