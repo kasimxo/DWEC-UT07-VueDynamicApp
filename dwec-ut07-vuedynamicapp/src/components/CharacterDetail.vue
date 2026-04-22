@@ -3,32 +3,51 @@
 
     <div class="modal">
       <button class="close-btn" @click="close">✖</button>
+      <div class="top-section">
 
-      <div class="character-info">
-
-        <img :src="character.image" />
+        <div class="character-info">
+          
+          <img :src="character.image" />
+          
+          <h2>{{ character.name }}</h2>
+          <p>Especie: {{ character.species }}</p>
+          <p>Estado: {{ character.status }}</p>
+          <p>Género: {{ character.gender }}</p>
+        </div>
         
-        <h2>{{ character.name }}</h2>
-        <p>Especie: {{ character.species }}</p>
-        <p>Estado: {{ character.status }}</p>
-        <p>Género: {{ character.gender }}</p>
+        <div class="location">
+          <h3>Localización</h3>
+          
+          <p v-if="loadingLocation">Cargando localización...</p>
+          
+          <p v-else-if="locationError">
+            {{ locationError }}
+          </p>
+          
+          <div v-else-if="location">
+            <p><strong>Nombre:</strong> {{ location.name }}</p>
+            <p><strong>Tipo:</strong> {{ location.type }}</p>
+            <p><strong>Dimensión:</strong> {{ location.dimension }}</p>
+            <p><strong>Residentes:</strong> {{ location.residents.length }}</p>
+          </div>
+        </div>
       </div>
 
-      <div class="location">
-        <h3>Localización</h3>
+      <div class="episodes">
+        <h3>Episodios</h3>
 
-        <p v-if="loadingLocation">Cargando localización...</p>
+        <p v-if="loadingEpisodes">Cargando episodios...</p>
 
-        <p v-else-if="locationError">
-          {{ locationError }}
+        <p v-else-if="episodesError">
+          {{ episodesError }}
         </p>
 
-        <div v-else-if="location">
-          <p><strong>Nombre:</strong> {{ location.name }}</p>
-          <p><strong>Tipo:</strong> {{ location.type }}</p>
-          <p><strong>Dimensión:</strong> {{ location.dimension }}</p>
-          <p><strong>Residentes:</strong> {{ location.residents.length }}</p>
-        </div>
+        <ul v-else>
+          <li v-for="ep in episodes" :key="ep.id">
+            <strong>{{ ep.name }}</strong>
+            ({{ ep.episode }}) - {{ ep.air_date }}
+          </li>
+        </ul>
       </div>
 
     </div>
@@ -39,11 +58,50 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 
 const props = defineProps({
   character: Object
 })
+
+const episodes = ref([])
+const loadingEpisodes = ref(false)
+const episodesError = ref(null)
+
+const getEpisodeIds = () => {
+  return props.character.episode
+    .map(url => url.split('/').pop())
+    .join(',')
+}
+
+const fetchEpisodes = async () => {
+  if (!props.character?.episode?.length) return
+
+  loadingEpisodes.value = true
+  episodesError.value = null
+
+  try {
+    const ids = getEpisodeIds()
+
+    const res = await fetch(
+      `https://rickandmortyapi.com/api/episode/${ids}`
+    )
+
+    if (!res.ok) {
+      throw new Error('Error al cargar episodios')
+    }
+
+    const data = await res.json()
+
+    episodes.value = Array.isArray(data) ? data : [data]
+
+  } catch (e) {
+    console.error(e)
+    episodesError.value = 'No se pudieron cargar los episodios'
+  } finally {
+    loadingEpisodes.value = false
+  }
+}
 
 const location = ref(null)
 const loadingLocation = ref(false)
@@ -83,10 +141,18 @@ const handleKey = (e) => {
   }
 }
 
+watch(
+  () => props.character,
+  () => {
+    fetchLocation()
+    fetchEpisodes()
+  },
+  { immediate: true }
+)
+
 onMounted(() => {
   console.log("CharacterDetail: ", props.character)
   window.addEventListener('keydown', handleKey)
-  fetchLocation()
 })
 
 onUnmounted(() => {
@@ -114,11 +180,16 @@ onUnmounted(() => {
   background: white;
   padding: 20px;
   border-radius: 10px;
-  max-width: 400px;
-  text-align: center;
   position: relative;
   animation: fadeIn 0.2s ease;
+
   display: flex;
+  flex-direction: column; 
+  gap: 20px;
+  max-width: 700px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 @keyframes fadeIn {
@@ -136,5 +207,27 @@ onUnmounted(() => {
   top: 10px;
   right: 10px;
   cursor: pointer;
+}
+
+.episodes {
+  width: 100%;
+}
+
+.top-section {
+  display: flex;
+  gap: 20px;
+  align-items: stretch;
+}
+
+.character-info,
+.location {
+  flex: 1;
+  text-align: left;
+}
+
+.location {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
 }
 </style>

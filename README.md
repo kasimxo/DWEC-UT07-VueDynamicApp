@@ -6,7 +6,14 @@ Desarrollar una aplicación web dinámica utilizando Vue 3 o Nuxt que consuma da
 
 Puedes ver el listado de requerimientos de esta tarea en [Requirements.md](./Requirements.md)
 
-![Captura de pantalla 1](./docs/imagen-1.png)
+![Listado de personajes](./docs/imagen-1.png)
+
+La aplicación permite ver un listado paginado de personajes y utilizar filtros para hacer búsquedas avanzadas.
+
+![Detalle de un personaje](./docs/imagen-6.png)
+
+Al hacer clic sobre un personaje, se abre un modal que recupera información adicional, como detalles sobre la localización o sobre los episodios en los que ha salido.
+
 
 ## Guía de uso
 
