@@ -4,9 +4,9 @@
       Página anterior
     </button>
 
-    <p>{{ page }}</p>
+    <p>{{ page }} de {{ totalPages }}</p>
 
-    <button @click="nextPage">
+    <button @click="nextPage" :disabled="page >= totalPages">
       Página siguiente
     </button>
   </div>
@@ -14,7 +14,8 @@
 
 <script setup>
 const props = defineProps({
-  page: Number
+  page: Number,
+  totalPages: Number,
 })
 
 const emit = defineEmits(['update:page'])
@@ -26,7 +27,9 @@ const prevPage = () => {
 }
 
 const nextPage = () => {
-  emit('update:page', props.page + 1)
+  if (props.page < props.totalPages) {
+    emit('update:page', props.page + 1)
+  }
 }
 </script>
 

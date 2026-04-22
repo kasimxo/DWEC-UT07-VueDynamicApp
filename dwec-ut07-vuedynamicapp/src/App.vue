@@ -1,7 +1,7 @@
 <template>
   <h1>TAREA 7: App dinámica con Vue/Nuxt (API Rick & Morty)</h1>
   <Filters v-model:filters="filters" />
-  <Pagination v-model:page="page" />
+  <Pagination v-model:page="page" :total-pages="totalPages" />
   <p v-if="loading">Cargando...</p>
 
   <p v-else-if="characters.length === 0">
@@ -31,6 +31,7 @@ import Pagination from './components/Pagination.vue'
 const characters = ref([])
 const loading = ref(false)
 const page = ref(1)
+const totalPages = ref(1)
 
 const filters = ref({
   name: '',
@@ -73,7 +74,7 @@ async function fetchCharacters() {
   }
 
   const data = await res.json()
-
+  totalPages.value = data.info.pages
   return data.results
 }
 
