@@ -4,6 +4,7 @@
             v-for="character in characters"
             :key="character.id"
             :character="character"
+            @show-detail="$emit('show-detail', $event)"
             />
     </div>
 </template>

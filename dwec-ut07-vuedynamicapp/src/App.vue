@@ -1,5 +1,5 @@
 <template>
-  <h1>TAREA 7: App dinámica con Vue/Nuxt (API Rick & Morty)</h1>
+  <h1>TAREA 7: App dinámica con Vue (API Rick & Morty)</h1>
   <Filters v-model:filters="filters" />
   <Pagination v-model:page="page" :total-pages="totalPages" />
   <p v-if="loading">Cargando...</p>
@@ -9,8 +9,17 @@
   </p>
 
   <div v-else>
-    <CharacterList :characters="characters" />
+    <CharacterList 
+      :characters="characters" 
+      @show-detail="openCharacter"
+    />
   </div>
+
+  <CharacterDetail
+    v-if="selectedCharacter"
+    :character="selectedCharacter"
+    @close="closeCharacter"
+  />
 </template>
 
 <style scoped>
@@ -27,11 +36,22 @@ import { ref, onMounted, watch } from 'vue'
 import CharacterList from './components/CharactersList.vue'
 import Filters from './components/Filters.vue'
 import Pagination from './components/Pagination.vue'
+import CharacterDetail from './components/CharacterDetail.vue'
 
 const characters = ref([])
 const loading = ref(false)
 const page = ref(1)
 const totalPages = ref(1)
+
+const selectedCharacter = ref(null)
+
+const openCharacter = (character) => {
+  selectedCharacter.value = character
+}
+
+const closeCharacter = () => {
+  selectedCharacter.value = null
+}
 
 const filters = ref({
   name: '',

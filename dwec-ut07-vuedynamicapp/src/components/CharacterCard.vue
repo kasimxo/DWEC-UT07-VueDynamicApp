@@ -11,8 +11,11 @@
 const props = defineProps({
   character: Object
 })
+
+const emit = defineEmits(['show-detail'])
+
 const showCharacterDetail = () => {
-  alert(`Detalles de ${props.character.name}:\nEspecie: ${props.character.species}\nEstado: ${props.character.status}\nGénero: ${props.character.gender}`)  
+  emit('show-detail', props.character)
 }
 const statusIcon = {
   Alive: '🟢',
