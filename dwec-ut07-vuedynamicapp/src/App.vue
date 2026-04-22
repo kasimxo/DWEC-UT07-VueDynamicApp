@@ -4,9 +4,9 @@
   <Pagination v-model:page="page" :total-pages="totalPages" />
   <p v-if="loading">Cargando...</p>
 
-  <p v-else-if="characters.length === 0">
-    No se encontraron personajes
-  </p>
+ <p v-else-if="error">
+    {{ error }}
+  </p> 
 
   <div v-else>
     <CharacterList 
@@ -42,6 +42,7 @@ const characters = ref([])
 const loading = ref(false)
 const page = ref(1)
 const totalPages = ref(1)
+const error = ref(null)
 
 const selectedCharacter = ref(null)
 
@@ -59,7 +60,14 @@ const filters = ref({
   species: '',
 })
 
+let controller = null
+
 async function fetchCharacters() {
+  if (controller) controller.abort()
+
+  controller = new AbortController()
+
+  error.value = null
   let base_url = 'https://rickandmortyapi.com/api/character'
 
   let queryParams = []
@@ -84,18 +92,38 @@ async function fetchCharacters() {
     base_url += '?' + queryParams.join('&')
   }
 
-  const res = await fetch(base_url)
-  if (!res.ok) {
+  try {
+    const res = await fetch(base_url, {
+        signal: controller.signal
+      })
 
-    if (res.status === 404) {
-    console.log('No hay resultados')
-    return []
+    if (!res.ok) {
+
+      if (res.status === 404) {
+        error.value = "No se encontraron personajes"
+        return []
+      } else if(res.status === 429) {
+        error.value = "Demasiadas solicitudes. Por favor, inténtalo de nuevo más tarde."
+        return []
+      } else {
+        error.value = "Error inesperado"
+        return []
+      }
     }
-  }
 
-  const data = await res.json()
-  totalPages.value = data.info.pages
-  return data.results
+    const data = await res.json()
+    totalPages.value = data.info.pages
+    return data.results
+
+  } catch (err) {
+    if (err.name === 'AbortError') {
+      console.log('Fetch aborted')
+    } else {
+      error.value = "Error de red. Por favor, inténtalo de nuevo."
+    }
+    return []
+  }
+  
 }
 
 const searchCharacter = async (query) => {
@@ -114,11 +142,20 @@ watch(filters, () => {
   page.value = 1
 }, { deep: true })
 
-watch([filters, page], async () => {
-  loading.value = true
-  characters.value = await fetchCharacters()
-  loading.value = false
-}, { deep: true, immediate: true })
+let timeout = null
 
+watch(
+  [filters, page],
+  () => {
+    loading.value = true
+    clearTimeout(timeout)
+
+    timeout = setTimeout(async () => {
+      characters.value = await fetchCharacters()
+      loading.value = false
+    }, 400) 
+  },
+  { deep: true, immediate: true }
+)
 </script>
 

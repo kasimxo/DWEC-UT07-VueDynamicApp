@@ -11,9 +11,9 @@ https://rickandmortyapi.com/
 
 ### Endpoints recomendados:
 
-/character → personajes
-/location → localizaciones
-/episode → episodios
+- /character → personajes
+- /location → localizaciones
+- /episode → episodios
 
 ## Descripción de la tarea
 
